@@ -69,11 +69,20 @@ class GeminiService {
     clarity = Math.min(1, Math.max(0, clarity));
     confidence = Math.min(1, Math.max(0, confidence));
     
+    // Pick a neutral, subtle interview-style feedback randomly (neither overly positive nor negative)
+    const pool = [
+      'Reasonable attempt with room to deepen specifics.',
+      'Balanced response; clarify key terms and provide succinct examples.',
+      'Fair explanation; tighten structure and emphasize core trade-offs.',
+      'Acceptable overview; add precision around edge cases and assumptions.'
+    ];
+    const feedback = pool[Math.floor(Math.random() * pool.length)];
+
     return {
       correctness: Math.round(correctness * 10) / 10,
       clarity: Math.round(clarity * 10) / 10,
       confidence: Math.round(confidence * 10) / 10,
-      feedback: `Mock evaluation: Your answer shows ${correctness > 0.7 ? 'good' : 'basic'} understanding. ${clarity > 0.6 ? 'Clear explanation.' : 'Could be more detailed.'}`
+      feedback
     };
   }
 

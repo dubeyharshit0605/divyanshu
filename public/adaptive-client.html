@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Adaptive Q&A Tester</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      .row { margin: 8px 0; }
+      button { padding: 8px 12px; margin-right: 6px; }
+      textarea { width: 100%; min-height: 80px; }
+      .card { border: 1px solid #ddd; padding: 12px; border-radius: 6px; margin: 10px 0; }
+      .muted { color: #666; }
+      .badge { display: inline-block; background: #eee; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+      pre { background: #f7f7f7; padding: 10px; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h2>Adaptive Q&A Tester</h2>
+    <p class="muted">Temporary frontend to test the cookie-based adaptive flow at <code>/api/adaptive</code>. Uses browser speech-to-text for up to 90 seconds per question.</p>
+
+    <div class="row">
+      <button id="btn-new-q">Get Question</button>
+      <button id="btn-start-mic">Start Mic (90s)</button>
+      <button id="btn-stop-mic" disabled>Stop Mic</button>
+      <button id="btn-submit-text">Submit Typed Answer</button>
+    </div>
+
+    <div class="card" id="question-card" style="display:none">
+      <div><strong>Difficulty:</strong> <span class="badge" id="q-diff">-</span></div>
+      <div class="row"><strong>Problem</strong><br><div id="q-problem"></div></div>
+      <div class="row"><strong>Input Format</strong><br><div id="q-in"></div></div>
+      <div class="row"><strong>Output Format</strong><br><div id="q-out"></div></div>
+      <div class="row"><strong>Constraints</strong><br><div id="q-const"></div></div>
+      <div class="row"><strong>Example</strong><br><div id="q-ex"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="row"><strong>Timer:</strong> <span id="timer">00:00</span></div>
+      <div class="row"><strong>Interim Transcript</strong><br><div id="interim" class="muted"></div></div>
+      <div class="row"><strong>Final Transcript</strong><br><div id="final"></div></div>
+      <div class="row"><strong>Type Answer (optional)</strong><br><textarea id="typed"></textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="row"><strong>Last Server Response</strong></div>
+      <pre id="resp">(none)</pre>
+    </div>
+
+    <script src="/js/adaptive-client.js"></script>
+  </body>
+  </html>
+
+

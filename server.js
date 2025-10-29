@@ -42,6 +42,9 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Static files (serve demo page)
+app.use(express.static('public'));
+
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -61,6 +64,11 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api', sessionRoutes);
 app.use('/api', adaptiveRoutes);
+
+// Demo route (optional convenience)
+app.get('/demo/adaptive-speech', (req, res) => {
+  res.sendFile(require('path').join(__dirname, 'public', 'adaptive-speech.html'));
+});
 
 // 404 handler
 app.use('*', (req, res) => {
