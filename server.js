@@ -142,12 +142,14 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 OOPS Backend server running on port ${PORT}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-  console.log(`📚 API docs: http://localhost:${PORT}/api`);
-});
+// Start server only when run directly (not when required by Vercel serverless)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 OOPS Backend server running on port ${PORT}`);
+    console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 Health check: http://localhost:${PORT}/health`);
+    console.log(`📚 API docs: http://localhost:${PORT}/api`);
+  });
+}
 
 module.exports = app;
