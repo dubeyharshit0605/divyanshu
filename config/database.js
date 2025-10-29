@@ -4,9 +4,6 @@ const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/oops_interview';
     
-    console.log('Environment MONGODB_URI:', process.env.MONGODB_URI);
-    console.log('Using mongoURI:', mongoURI);
-    
     const conn = await mongoose.connect(mongoURI);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);

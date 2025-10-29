@@ -324,6 +324,21 @@ npm test           # Run tests
 npm run seed       # Seed database with sample data
 ```
 
+## Deploying a persistent backend (Render/Railway)
+
+1. Push this repo to GitHub.
+2. Create a new Web Service on Render or Railway:
+   - Build command: `npm install`
+   - Start command: `node server.js`
+   - Health check path: `/health`
+3. Configure environment variables:
+   - `MONGODB_URI` = your MongoDB Atlas connection string
+   - `GEMINI_API_KEY` = your Gemini API key
+   - `CORS_ORIGIN` = your frontend origin (e.g., `https://yourapp.com` or `http://localhost:3000`)
+   - Optional: `GEMINI_API_URL`
+4. Ensure MongoDB Atlas Network Access allows your host IPs (or `0.0.0.0/0` for testing).
+5. Deploy. Your endpoints will be available at `https://<your-service>/api/*`.
+
 ### Project Structure
 
 ```
@@ -350,6 +365,8 @@ oops-backend/
 ## License
 
 MIT License - see LICENSE file for details
-#   O O P S - Q u e s t i o n - G e n e r a t o r  
- #   d i v y a n s h u  
+#   O O P S - Q u e s t i o n - G e n e r a t o r 
+ 
+ #   d i v y a n s h u 
+ 
  
