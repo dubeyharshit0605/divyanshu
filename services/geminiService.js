@@ -209,6 +209,125 @@ Return ONLY the JSON object.`;
       };
     }
   }
+
+  async generateAdaptiveQuestion(currentTopic, currentDifficulty, previousResponse = null) {
+    try {
+      const systemPrompt = `You are an intelligent question generator for an adaptive learning system.
+Your job is to interact with the user, generate questions, and automatically adjust their difficulty based on the user's previous responses — without any manual difficulty input.
+
+Behavior Rules:
+1. Begin with an easy question on the chosen topic.
+2. After each user response:
+   - If the answer shows confidence and correctness, increase difficulty gradually.
+   - If the answer is partially correct, keep the same level with slight variation.
+   - If the answer is incorrect or confused, lower the difficulty and provide simpler conceptual questions.
+3. Keep questions precise, clear, and engaging.
+4. Never provide the answer unless explicitly asked.
+5. Mention the current difficulty level before each question.
+6. Stay on the same topic unless the user explicitly changes it.`;
+
+      const prompt = `
+${systemPrompt}
+
+Current Topic: ${currentTopic}
+Current Difficulty Level: ${currentDifficulty}
+${previousResponse ? `Previous Response Performance: ${JSON.stringify({
+  performance_band: previousResponse.performance_band,
+  performance_score: previousResponse.performance_score,
+  covered_key_points: previousResponse.covered_key_points,
+  missed_key_points: previousResponse.missed_key_points
+})}
+
+Previous Question: ${previousResponse.previous_question}
+Previous Answer: ${previousResponse.previous_answer}
+
+Instruction: Focus the next question to reinforce the missed_key_points and avoid repeating the same exact problem statement. Introduce a slight variation or a new subtopic within the same topic to assess the missed areas.` : 'This is the first question.'}
+
+Generate an appropriate question for the candidate. Return the response in the following JSON format:
+{
+  "question_text": "Your generated question here",
+  "expected_key_points": ["key point 1", "key point 2", "key point 3"],
+  "difficulty": "${currentDifficulty}",
+  "domain": "${currentTopic}",
+  "reasoning": "Brief explanation of why this question is appropriate"
+}
+
+Ensure the question:
+- Is appropriate for the ${currentDifficulty} difficulty level
+- Is relevant to the ${currentTopic} topic
+- Has 2-4 expected key points that a good answer should cover
+- ${previousResponse ? previousResponse.performance_score >= 0.7 ? 'Is more challenging than the previous question' : previousResponse.performance_score < 0.5 ? 'Is easier and more conceptual than the previous question' : 'Maintains similar difficulty with slight variation' : 'Serves as a good starting point'}
+- If missed_key_points exist, ensure at least one of them is directly assessed in the new question.
+- Do not repeat the previous question verbatim. Use a different angle or example.
+
+Return ONLY the JSON object.`;
+
+      const response = await axios.post(
+        `${this.apiUrl}?key=${this.apiKey}`,
+        {
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 30000
+        }
+      );
+
+      const generatedText = response.data.candidates[0].content.parts[0].text;
+      const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+      
+      if (jsonMatch) {
+        const questionData = JSON.parse(jsonMatch[0]);
+        
+        // Validate and ensure required fields
+        if (!questionData.question_text) {
+          throw new Error('No question generated');
+        }
+        
+        // Generate a unique question ID
+        questionData.question_id = `Q${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+        
+        // Ensure expected_key_points is an array
+        if (!questionData.expected_key_points || !Array.isArray(questionData.expected_key_points)) {
+          questionData.expected_key_points = ['Concept understanding', 'Technical details'];
+        }
+        
+        return questionData;
+      }
+      
+      throw new Error('No valid JSON found in response');
+
+    } catch (error) {
+      console.error('Error generating adaptive question:', error);
+      
+      // Return a fallback question
+      return {
+        question_id: `Q${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+        question_text: `Explain the concept of ${currentTopic} in the context of software development. What are the key aspects you would consider?`,
+        expected_key_points: [
+          'Concept definition',
+          'Key characteristics',
+          'Use cases or applications',
+          'Important considerations'
+        ],
+        difficulty: currentDifficulty,
+        domain: currentTopic,
+        reasoning: 'Fallback question due to API error'
+      };
+    }
+  }
 }
 
 module.exports = new GeminiService();

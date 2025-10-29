@@ -7,6 +7,7 @@ const connectDB = require('./config/database');
 
 // Import routes
 const sessionRoutes = require('./routes/sessionRoutes');
+const adaptiveRoutes = require('./routes/adaptiveRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -59,6 +60,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api', sessionRoutes);
+app.use('/api', adaptiveRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
